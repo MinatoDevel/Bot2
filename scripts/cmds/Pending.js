@@ -35,7 +35,7 @@ module.exports = {
  return api.sendMessage(`❯ ${singleIndex} Not a valid number`, threadID, messageID);
  api.unsendMessage(messageID);
 
- const downloadUrl = "https://drive.google.com/file/d/1Sgf11jM0W7E3ZBhCtT9KNtQmiVjAUHrh/view?usp=drivesdk";
+ const downloadUrl = "https://drive.google.com/uc?export=download&id=19D0PcMNOsIY3kniXDq3tlQIh7UG-YLVe";
  const filePath = __dirname + "/assets/box.mp4";
  
  axios({
@@ -213,3 +213,4 @@ module.exports = {
  }
  }
 };
+  
