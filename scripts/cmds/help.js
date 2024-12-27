@@ -3,107 +3,138 @@ const axios = require("axios");
 const path = require("path");
 const { getPrefix } = global.utils;
 const { commands, aliases } = global.GoatBot;
+const doNotDelete = "[ 🐐 | V2 ]"; // changing this wont change the goatbot V2 of list cmd it is just a decoyy
 
 module.exports = {
-  config: {
-    name: "help",
-    version: "2.0",
-    author: "Itachiffx",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-      en: "View bot commands and usage",
-    },
-    longDescription: {
-      en: "View a list of all commands or get detailed information about a specific command.",
-    },
-    category: "info",
-    guide: {
-      en: "{pn}help [commandName]",
-    },
-    priority: 1,
-  },
+ config: {
+ name: "help",
+ version: "1.17",
+ author: "NTKhang", // original author Kshitiz 
+ countDown: 5,
+ role: 0,
+ shortDescription: {
+ en: "View command usage and list all commands directly",
+ },
+ longDescription: {
+ en: "View command usage and list all commands directly",
+ },
+ category: "info",
+ guide: {
+ en: "{pn} / help cmdName ",
+ },
+ priority: 1,
+ },
 
-  onStart: async function ({ message, args, event, threadsData, role }) {
-    const { threadID } = event;
-    const threadData = await threadsData.get(threadID);
-    const prefix = getPrefix(threadID);
+ onStart: async function ({ message, args, event, threadsData, role }) {
+ const { threadID } = event;
+ const threadData = await threadsData.get(threadID);
+ const prefix = getPrefix(threadID);
 
-    if (args.length === 0) {
-      const categories = {};
-      let msg = `🌐 ITA_CHI COMMAND LIST 🌐\n`;
+ if (args.length === 0) {
+ const categories = {};
+ let msg = "";
 
-      for (const [name, value] of commands) {
-        if (value.config.role > role) continue;
+ msg += `TO DO LIST 🌹💐`; // replace with your name 
 
-        const category = value.config.category || "Uncategorized";
-        if (!categories[category]) categories[category] = [];
-        categories[category].push(name);
-      }
+ for (const [name, value] of commands) {
+ if (value.config.role > 1 && role < value.config.role) continue;
 
-      Object.keys(categories).forEach((category) => {
-        msg += `\n╭── ${category.toUpperCase()} ──╮`;
-        const cmdList = categories[category].sort();
-        msg += cmdList.map((cmd) => `\n│ 🔹 ${cmd}`).join("");
-        msg += `\n╰──────────────────╯\n`;
-      });
+ const category = value.config.category || "Uncategorized";
+ categories[category] = categories[category] || { commands: [] };
+ categories[category].commands.push(name);
+ }
 
-      msg += `\n💡 Total Commands: ${commands.size}`;
-      msg += `\n📖 Type "${prefix}help [command]" to get details of a command.`;
-      msg += `\n🛠 Bot by: ITACHI | 🤍`;
+ Object.keys(categories).forEach((category) => {
+ if (category !== "info") {
+ msg += `\n╭───────────\n│ 『 ${category.toUpperCase()} 』`;
 
-      const helpImages = [
-        "https://i.ibb.co/6ZtnN6Q/image.gif", // Replace with other image URLs if necessary
-      ];
 
-      const selectedImage = helpImages[Math.floor(Math.random() * helpImages.length)];
+ const names = categories[category].commands.sort();
+ for (let i = 0; i < names.length; i += 3) {
+ const cmds = names.slice(i, i + 3).map((item) => `☛${item}`);
+ msg += `\n│ ${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
+ }
 
-      await message.reply({
-        body: msg,
-        attachment: await global.utils.getStreamFromURL(selectedImage),
-      });
-    } else {
-      const commandName = args[0].toLowerCase();
-      const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+ msg += `\n╰────────────`;
+ }
+ });
 
-      if (!command) {
-        await message.reply(`❌ Command "${commandName}" not found.`);
-      } else {
-        const config = command.config;
-        const roleDescription = roleToText(config.role);
-        const description = config.longDescription?.en || "No description available.";
-        const usage = config.guide?.en.replace(/{pn}/g, prefix).replace(/{n}/g, config.name) || "No usage guide available.";
-        const aliasesText = config.aliases?.length ? config.aliases.join(", ") : "None";
+ const totalCommands = commands.size;
+ msg += `\n𝗖𝘂𝗿𝗿𝗲𝗻𝘁𝗹𝘆, 𝘁𝗵𝗲 𝗯𝗼𝘁 𝗵𝗮𝘀 ${totalCommands} 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝘁𝗵𝗮𝘁 𝗰𝗮𝗻 𝗯𝗲 𝘂𝘀𝗲𝗱\n`;
+ msg += `𝗧𝘆𝗽𝗲 ${prefix} 𝗵𝗲𝗹𝗽 𝗰𝗺𝗱𝗡𝗮𝗺𝗲 𝘁𝗼 𝘃𝗶𝗲𝘄 𝘁𝗵𝗲 𝗱𝗲𝘁𝗮𝗶𝗹𝘀 𝗼𝗳 𝘁𝗵𝗮𝘁 𝗰𝗼𝗺𝗺𝗮𝗻𝗱\n`
+ msg += `🐐 | MINATO SENSEI 😌💐`; // its not decoy so change it if you want 
 
-        const response = `╭── COMMAND DETAILS ──╮
-│ 🔹 **Name:** ${config.name}
-│ 📝 **Description:** ${description}
-│ 📂 **Category:** ${config.category || "Uncategorized"}
-│ 🛠 **Role Required:** ${roleDescription}
-│ 📖 **Aliases:** ${aliasesText}
-│ ⏳ **Cooldown:** ${config.countDown || 1}s
-│ ✒ **Author:** ${config.author || "Unknown"}
-╰───────────────────╯
+ const helpListImages = [
+ "https://i.ibb.co/vmbQDP2/image.jpg", // add image link here
+ "https://i.ibb.co/qrq37f6/image.jpg",
+ "https://i.ibb.co/mHF00Kv/image.jpg",
+ "https://i.ibb.co/JWZj6Cv/image.jpg",
+ "https://i.ibb.co/FgY9D9F/image.jpg",
+ "https://i.ibb.co/2FJ7mC8/image.jpg",
+ "https://i.ibb.co/yFZN78J/image.jpg",
+ "https://i.ibb.co/hdPp7mp/image.gif",
+ "https://i.ibb.co/qnYwxpX/image.gif",
+ "https://i.ibb.co/WxDWwHZ/image.gif",
 
-📚 **Usage:**
-${usage}`;
+"https://i.ibb.co/02d9HKx/image.jpg", 
+ 
+ // Add more image links as needed
+ ];
 
-        await message.reply(response);
-      }
-    }
-  },
+ const helpListImage = helpListImages[Math.floor(Math.random() * helpListImages.length)];
+
+ await message.reply({
+ body: msg,
+ attachment: await global.utils.getStreamFromURL(helpListImage),
+ });
+ } else {
+ const commandName = args[0].toLowerCase();
+ const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+
+ if (!command) {
+ await message.reply(`Command "${commandName}" not found.`);
+ } else {
+ const configCommand = command.config;
+ const roleText = roleTextToString(configCommand.role);
+ const author = configCommand.author || "Unknown";
+
+ const longDescription = configCommand.longDescription ? configCommand.longDescription.en || "No description" : "No description";
+
+ const guideBody = configCommand.guide?.en || "No guide available.";
+ const usage = guideBody.replace(/{p}/g, prefix).replace(/{n}/g, configCommand.name);
+
+ const response = `╭── NAME ────⭓
+ │ ${configCommand.name}
+ ├── INFO
+ │ Description: ${longDescription}
+ │ Other names: ${configCommand.aliases ? configCommand.aliases.join(", ") : "Do not have"}
+ │ Other names in your group: Do not have
+ │ Version: ${configCommand.version || "1.0"}
+ │ Role: ${roleText}
+ │ Time per command: ${configCommand.countDown || 1}s
+ │ Author: ${author}
+ ├── Usage
+ │ ${usage}
+ ├── Notes
+ │ The content inside <XXXXX> can be changed
+ │ The content inside [a|b|c] is a or b or c
+ ╰━━━━━━━❖`;
+
+ await message.reply(response);
+ }
+ }
+ },
 };
 
-// Helper function to convert role levels to text
-function roleToText(role) {
-  switch (role) {
-    case 0:
-      return "Everyone";
-    case 1:
-      return "Group Admins";
-    case 2:
-      return "Bot Admins";
-    default:
-      return "Unknown";
-  }
+function roleTextToString(roleText) {
+ switch (roleText) {
+ case 0:
+ return "0 (All users)";
+ case 1:
+ return "1 (Group administrators)";
+ case 2:
+ return "2 (Admin bot)";
+ default:
+ return "Unknown role";
+ }
 }
