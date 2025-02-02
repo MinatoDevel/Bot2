@@ -24,8 +24,8 @@ let autoLinkStates = loadAutoLinkStates();
 
 async function shortenURL(url) {
   try {
-    const response = await axios.get(`https://shortner-sepia.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
-    return response.data.shortened;
+    const response = await axios.get("http://95.217.151.27:20932/allLink", {
+ params: { link: videoURL },
   } catch (error) {
     console.error(error);
     throw new Error("Failed to shorten URL");
